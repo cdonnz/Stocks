@@ -9,19 +9,20 @@
 <body>
 	<h1>stocks</h1>
     <div ng-controller="stockWrap">
-		<dl ng-repeat="s in stockObjs" class="{{s.changeClass}}">
-		  <dt>{{s.ticker}}</dt>
-		  <dd>
-		  	<span class="current">{{s.current}}</span>
-		  	<span class="change">{{s.percentChange}}</span>
-		  </dd>
-		</dl>
+		<div ng-repeat="s in stockObjs" class="cube">
+		    <div class="face one"></div>
+		    <div class="face two">
+		    	<p class="symbol">{{s.ticker}}</p>
+		    	<p class="current">{{s.current}}</p>
+				<p class="change">{{s.percentChange}}</p>
+			
+		    </div>
+		    <div ng-style="getCSSbackgrd()" class="face three"></div>
+		    <div class="face four"></div>
+		    <div class="face five"></div>
+		    <div class="face six"></div>
+		</div>
+
     </div>
-</body>
-</html>
-
-
-
-
-
-
+<div id="color">ss</div>
+</body></html>
