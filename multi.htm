@@ -1,0 +1,27 @@
+<!doctype html>
+<html ng-app="myApp" lang="en">
+<head>
+    <title>EXP</title>
+	<script src="js/angular.min.js"></script>
+	<script src="js/main.js"></script>
+   	<link rel="stylesheet" href="css/styles.css"> 
+</head>
+<body>
+	<h1>stocks</h1>
+    <div ng-controller="stockWrap">
+		<dl ng-repeat="s in stockObjs" class="{{s.changeClass}}">
+		  <dt>{{s.ticker}}</dt>
+		  <dd>
+		  	<span class="current">{{s.current}}</span>
+		  	<span class="change">{{s.percentChange}}</span>
+		  </dd>
+		</dl>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
