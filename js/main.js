@@ -2,10 +2,8 @@ var app = angular.module('myApp', []);
 
 app.controller('stockWrap', ['$scope', '$http', function($scope, $http) {
 
-			$scope.getCSSbackgrd = function(){alert("getcss")
-				//return 'background-color:'+ d.quote[i].colorC;
-				return "background-color:rgb(242,59,0)";
-			}
+			$scope.getCSSbackgrd =  "background-color:rgb(242,59,0)";
+			
 	$scope.stocks= ["FB","TWTR"];
 
 	$http({
@@ -36,10 +34,6 @@ app.controller('stockWrap', ['$scope', '$http', function($scope, $http) {
 		
 			//$scope.divColor = d.quote[i].colorC;
 
-			$scope.getCSSbackgrd = function(){alert("getcss")
-				//return 'background-color:'+ d.quote[i].colorC;
-				return "background-color:rgb(242,59,0)";
-			}
 			//elm.style.backgroundColor = d.quote[i].colorC;
 			
 		}
