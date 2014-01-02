@@ -43,7 +43,10 @@ app.controller('stockWrap', ['$scope', '$http', function($scope, $http) {
 	$scope.update = function(){ 
 		update($http,$scope);
 	}
-
+	setInterval(function(){
+		$scope.update();
+		console.log("updated");
+	},3000)
 	$scope.update();
 
 }]);

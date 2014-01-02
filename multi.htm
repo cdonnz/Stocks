@@ -7,6 +7,11 @@
    	<link rel="stylesheet" href="css/styles.css"> 
 </head>
 <body ng-controller="stockWrap">
+    <div ng-controller="stockControl">
+    	<form  ng-submit="sayStock()" name="myForm">
+    		<input type="text" ng-model="addStock.name"><button>Add</button>
+    	</form>
+    </div>	
     <div class="wrap">
 		<div ng-repeat="s in stockObjs" class="cube">
 		    <div class="face one" style="background-color:{{s.colorC}}"></div>
@@ -21,11 +26,6 @@
 		    <div class="face five"   style="background-color:{{s.colorC}}"></div>
 		    <div class="face six"    style="background-color:{{s.colorC}}"></div>
 		</div>
-    </div>
-    <div ng-controller="stockControl">
-    	<form  ng-submit="sayStock()" name="myForm">
-    		<input type="text" ng-model="addStock.name"><button>Add</button>
-    	</form>
     </div>
 </body>
 </html>
