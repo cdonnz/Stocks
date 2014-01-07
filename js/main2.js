@@ -1,27 +1,27 @@
 var app = angular.module('myApp', []);
 
 app.factory('items', function() {
-    var items = [];
-    var itemsService = {};
+    var items = [], itemsService = {};
 
     itemsService.add = function(item) {
-        items.push(item.toUpperCase());
+        var item = item.toUpperCase();
+        if(items.indexOf(item) == -1){items.push(item);}
+        return items; 
     };
-    itemsService.list = function() {
+
+    itemsService.list = function() { return items;};
+
+    itemsService.remove = function(item){
+        var i = items.indexOf(item.toUpperCase());
+        items.splice(i,1);     
         return items;
     };
-    itemsService.remove = function(item){
-        console.log("not implented yet");
-        return 
-    }
-
     return itemsService;
 });
 
 app.factory('stocks',['$http',function($http){
-    var stockObjs = [];
-    var grabDataService = {};
-    var callbackFN = false;
+    var stockObjs = [], grabDataService = {}, callbackFN = false;
+    
     grabDataService.grabCurrent = function(){
         return stockObjs;
     }
@@ -29,17 +29,16 @@ app.factory('stocks',['$http',function($http){
         callbackFN = fn;
     } 
     grabDataService.getAll = function(stockItems){ 
-        var stocks = stockItems.join(",");
+        var stocks = stockItems.join(","), stockObjs = [];
         $http({
             method: 'JSONP',
             url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
         });
-        stockObjs = [];
         window.jcb = function(d){
-            for(var i = 0; i < d.quote.length; i++){console.log(d.quote[i].ticker)
-                stockObjs.push(d.quote[i]);
+            if(!Array.isArray(d.quote)){stockObjs.push(d.quote)}
+            else{
+                for(var i = 0; i < d.quote.length; i++){stockObjs.push(d.quote[i]);}
             }
-            console.log(stockObjs);
             callbackFN(stockObjs);
         } 
     }  
@@ -47,7 +46,10 @@ app.factory('stocks',['$http',function($http){
 }]);
 
 app.controller('stockWrap', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {
-    items.add("fb"); items.add("nq");
+    
+    //items.add("fb"); items.add("nq");
+    //if stocks in url - items.add()
+    //else if stocks in cookie - items.add();
     var fn = function(stObjs){$scope.stockObjs  = stObjs;}
     stocks.setUpdater(fn);
     stocks.getAll(items.list());
@@ -55,7 +57,7 @@ app.controller('stockWrap', ['$scope','items','stocks','$http', function($scope,
 
 app.controller('adder', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {   
     $scope.addStock = function(){
-        items.add($scope.newStock);  
+        items.add($scope.newStock);
         stocks.getAll(items.list(),$scope);
     }
 }]);
