@@ -1,0 +1,21 @@
+<!doctype html> 
+<html ng-app="myApp" lang="en">
+<head>
+  <title>EXP</title>
+  <script src="js/angular.min.js"></script>
+  <script src="js/main2.js"></script>
+  <link rel="stylesheet" href="css/styles2.css"> 
+</head>
+<body ng-controller="stockWrap">
+  <div ng-repeat="s in stockObjs">
+    <div style="background-color:{{s.stockColor}}">
+      {{s.ticker}}: {{s.percentChange}}
+    </div>
+  </div>
+  <div ng-controller="adder">
+    <form  ng-submit="addStock()" name="myForm">
+      <input ng-model="newStock" type="text"><button>Add</button>
+    </form>
+  </div>
+</body>
+</html>
