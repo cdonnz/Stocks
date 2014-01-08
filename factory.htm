@@ -9,7 +9,7 @@
 <body ng-controller="stockWrap">
   <div ng-repeat="s in stockObjs">
     <div style="background-color:{{s.stockColor}}">
-      {{s.ticker}}: {{s.percentChange}}
+      {{s.ticker}}: {{s.percentChange}} : {{s.current}}
     </div>
   </div>
   <div ng-controller="adder">
