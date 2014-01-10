@@ -1,4 +1,51 @@
-function update($http,$scope){
+var app = angular.module('myApp', []);
+
+app.factory('items', function() {
+    var items = [];
+    var itemsService = {};
+
+    itemsService.add = function(item) {
+        items.push(item);
+    };
+    itemsService.list = function() {
+        return items;
+    };
+
+    return itemsService;
+});
+
+app.controller('stockWrap', ['$scope', '$http', function($scope, $http) {
+			
+	$scope.stocks= ["FB","TWTR"];
+
+	$scope.update = function(){ 
+		update($http,$scope);
+	}
+
+	$scope.update();
+
+}]);
+
+app.controller('stockControl', ['$scope', function($scope) {
+	$scope.addStock = {};
+	$scope.sayStock = function() {
+		$scope.stocks.push($scope.addStock.name.toUpperCase());
+    	$scope.update();
+  	}
+}]);
+
+
+function Ctrl1($scope,items) {
+    $scope.list = items.list; 
+}
+
+function Ctrl2($scope, items) {
+    $scope.add = items.add;
+}
+
+  /*
+
+  function update($http,$scope){
 
 		$http({
 			method: 'JSONP',
@@ -57,3 +104,4 @@ app.controller('stockControl', ['$scope', function($scope) {
 }]);
 
 
+*/

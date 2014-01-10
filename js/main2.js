@@ -52,11 +52,11 @@ var app = angular.module('myApp', []);
 app.factory('items', function() {
     var items = [], itemsService = {};
 
-    itemsService.add = function(item) {console.log(item)
+    itemsService.add = function(item) {
         var item = item.toUpperCase();
         var c = utils.cookies.read("stocks");
         if(c){ cArr = c.split("-");
-          if(cArr.indexOf(item) == -1){ console.log("inside it");
+          if(cArr.indexOf(item) == -1){ 
             cArr.push(item)
                 utils.cookies.add("stocks",cArr.join("-"));
             }
@@ -123,9 +123,10 @@ app.controller('stockWrap', ['$scope','items','stocks','$http', function($scope,
             items.add(sArr[i]);
         }
     }
-    console.log(items.list(),"items")
+
     stocks.setUpdater(fn);
     stocks.getAll(items.list());
+    console.log("items:",items.list(), "   stocks:",utils.cookies.read("stocks"))
   
 }]);
 
@@ -136,4 +137,4 @@ app.controller('adder', ['$scope','items','stocks','$http', function($scope,item
     }
 }]);
 
-}());
+}());alert("jj")
