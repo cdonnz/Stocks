@@ -1,0 +1,37 @@
+<!doctype html>
+<html ng-app="myApp" lang="en">
+<head>
+    <title>EXP</title>
+	<script src="js/angular.min.js"></script>
+	<script src="js/main.js"></script>
+   	<link rel="stylesheet" href="css/styles.css"> 
+</head>
+<body ng-controller="stockWrap">
+    <div ng-controller="stockControl">
+    	<form  ng-submit="sayStock()" name="myForm">
+    		<input type="text" ng-model="addStock.name"><button>Add</button>
+    	</form>
+    </div>	
+    <div class="wrap">
+		<div ng-repeat="s in stockObjs" class="cube">
+		    <div class="face one" style="background-color:{{s.colorC}}"></div>
+		    <div class="face two" style="background-color:{{s.colorC}}">
+		    	<p class="symbol">{{s.ticker}}</p>
+		    	<p class="current">{{s.current}}</p>
+				<p class="change">{{s.percentChange}}</p>
+			
+		    </div>
+		    <div class="face three"  style="background-color:{{s.colorC}}"></div>
+		    <div class="face four"   style="background-color:{{s.colorC}}"></div>
+		    <div class="face five"   style="background-color:{{s.colorC}}"></div>
+		    <div class="face six"    style="background-color:{{s.colorC}}"></div>
+		</div>
+    </div>
+
+    <div ng-controller="stockControl">
+    	<form  ng-submit="sayStock()" name="myForm">
+    		<input type="text" ng-model="newStock"><button>Add</button>
+    	</form>
+    </div>
+</body>
+</html>
