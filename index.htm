@@ -3,18 +3,18 @@
 <head>
   <title>EXP</title>
   <script src="js/angular.min.js"></script>
-  <script src="js/main2.js"></script>
+  <script src="js/main.js"></script>
   <link rel="stylesheet" href="css/styles2.css"> 
 </head>
 <body ng-controller="stockWrap">
   <div ng-repeat="s in stockObjs">
     <div style="background-color:{{s.stockColor}}">
-      {{s.ticker}}: {{s.percentChange}}
+      {{s.ticker}}: {{s.percentChange}} : {{s.current}} <button class="remove-stock" ng-click="trash(s)">[-]</button>
     </div>
   </div>
   <div ng-controller="adder">
     <form  ng-submit="addStock()" name="myForm">
-      <input ng-model="newStock" type="text"><button>Add</button>
+      <input ng-model="newStock" type="text"><button class="add-stock">Add</button>
     </form>
   </div>
 </body>

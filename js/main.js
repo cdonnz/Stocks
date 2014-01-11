@@ -1,107 +1,150 @@
-var app = angular.module('myApp', []);
+(function(){//damned alone again  
+    var utils = {};
+    utils.cookies = (function(){
+        return {
+            add: function(name,value,days) {
+                if (days) {
+                    var date = new Date();
+                    date.setTime(date.getTime()+(days*24*60*60*1000));
+                    var expires = "; expires="+date.toGMTString();
+                }
+                else var expires = "";
+                document.cookie = name+"="+value+expires+"; path=/";
+            },
+            remove: function(name){
+                this.add(name,"",-1);
+            },
+            read: function(name){
+                var i, nameEQ = name + "=", ca = document.cookie.split(';');
+                for(i=0;i < ca.length;i++) {
+                    var c = ca[i];
+                    while (c.charAt(0)==' ') c = c.substring(1,c.length);
+                    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+                }
+                return null;
+            }           
+        }
+    }());
 
-app.factory('items', function() {
-    var items = [];
-    var itemsService = {};
+    utils.heatMap = (function(){
+        return {
+            getRGB: function(val){
+                var val = parseInt(val), n = 100, r = 233, g = 250, b = 232, pos = {r2 : 71, g2 : 226, b2 : 64},
+                neg = {r2 : 207, g2 : 11, b2 : 28}, cObj = {}, p = parseInt, pos;
 
-    itemsService.add = function(item) {
-        items.push(item);
-    };
-    itemsService.list = function() {
-        return items;
-    };
+                cObj = (p(val) > 0)? pos : neg; 
 
-    return itemsService;
-});
+                pos = p((Math.round((Math.abs(val)/7)*100)).toFixed(0));
+                red = p((r + (( pos * (cObj.r2 - r)) / (n-1))).toFixed(0));
+                green = p((g + (( pos * (cObj.g2 - g)) / (n-1))).toFixed(0));
+                blue = p((b + (( pos * (cObj.b2 - b)) / (n-1))).toFixed(0));
+                
+                return 'rgb('+red+','+green+','+blue+')';
+            }
+        }
+    })();
 
-app.controller('stockWrap', ['$scope', '$http', function($scope, $http) {
-			
-	$scope.stocks= ["FB","TWTR"];
+    var app = angular.module('myApp', []);
 
-	$scope.update = function(){ 
-		update($http,$scope);
-	}
+    app.factory('items', function() {
+        var items = [], itemsService = {};
 
-	$scope.update();
+        itemsService.loadCookieItems = function(){
+            if(utils.cookies.read("stocks")){
+                var s = utils.cookies.read("stocks"),sArr = s.split("-");
+                for(var i = 0; i < sArr.length; i++){
+                    itemsService.add(sArr[i]);
+                }
+            } 
+        };
 
-}]);
+        itemsService.add = function(item) {
+            var item = item.toUpperCase(), c = utils.cookies.read("stocks");
+            if(c){ cArr = c.split("-");
+              if(cArr.indexOf(item) == -1){ 
+                cArr.push(item);
+                utils.cookies.add("stocks",cArr.join("-"));
+              }
+            }else{
+                utils.cookies.add("stocks",item);
+            }
+            if(items.indexOf(item) == -1){items.push(item);}
+            return items; 
+        };
 
-app.controller('stockControl', ['$scope', function($scope) {
-	$scope.addStock = {};
-	$scope.sayStock = function() {
-		$scope.stocks.push($scope.addStock.name.toUpperCase());
-    	$scope.update();
-  	}
-}]);
+        itemsService.list = function() { return items;};
 
+        itemsService.remove = function(item){
+            c = utils.cookies.read("stocks");
+            if(c){ cArr = c.split("-"); 
+                if(cArr.indexOf(item) > -1){
+                    var position = cArr.indexOf(item);
+                    cArr.splice(position,1);
+                    utils.cookies.add("stocks",cArr.join("-"));
+                }
+            }            
+            var i = items.indexOf(item.toUpperCase());
+            items.splice(i,1);     
+            return items;
+        };
+        return itemsService;
+    });
 
-function Ctrl1($scope,items) {
-    $scope.list = items.list; 
-}
+    app.factory('stocks',['$http','items',function($http,items){
+        var stockObjs = [], grabDataService = {}, callbackFN = false;
+        
+        grabDataService.initialize = function(){
+            items.loadCookieItems();
+        }    
 
-function Ctrl2($scope, items) {
-    $scope.add = items.add;
-}
+        grabDataService.grabCurrent = function(){
+            return stockObjs;
+        }
+        grabDataService.setUpdater = function(fn){
+            callbackFN = fn;
+        } 
+        grabDataService.getAll = function(stockItems){ 
+            var stocks = stockItems.join(","), stockObjs = [];
+            $http({
+                method: 'JSONP',
+                url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
+            });
+            window.jcb = function(d){
+                if(!Array.isArray(d.quote)){stockObjs.push(d.quote)}
+                else{
+                    for(var i = 0; i < d.quote.length; i++){stockObjs.push(d.quote[i]);}
+                }
+                callbackFN(stockObjs);
+            } 
+        }  
+        return grabDataService;  
+    }]);
 
-  /*
+    app.controller('stockWrap', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {
+        $scope.trash = function(stock){
+            items.remove(stock.ticker);
+            stocks.getAll(items.list());
+        }
+        var fn = function(stObjs){
+            for(var i = 0; i < stObjs.length; i++){
+                if(stObjs[i].percentChange =="n.a."){continue;}
+                stObjs[i].stockColor = utils.heatMap.getRGB(stObjs[i].percentChange);
+            }
+            $scope.stockObjs = stObjs;
+        }
 
-  function update($http,$scope){
+        stocks.initialize();
+        stocks.setUpdater(fn);
+        stocks.getAll(items.list());
+    }]);
 
-		$http({
-			method: 'JSONP',
-			url: 'http://www.foxbusiness.com/ajax/quote/'+$scope.stocks.join(",")+'?callback=jcb'
-		});
+    app.controller('adder', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {   
+        $scope.addStock = function(){
+            if(typeof $scope.newStock == "undefined"){return; }
+            items.add($scope.newStock);
+            stocks.getAll(items.list(),$scope);
+            $scope.newStock = "";
+        }
+    }]);
 
-		function getHeatNum(val){
-			var pos = { xr : 25, xg : 136, xb : 7, yr : 35, yg : 248, yb : 0,n : 100},
-			neg = { xr : 255, xg : 78, xb : 0, yr : 202, yg : 1,  yb : 1, n : 100
-			}, cObj = {};
-
-			cObj = (parseInt(val) > 0)? pos : neg;
-			var pos = parseInt((Math.round((Math.abs(val)/12)*100)).toFixed(0));
-			red = parseInt((cObj.xr + (( pos * (cObj.yr - cObj.xr)) / (cObj.n-1))).toFixed(0));
-			green = parseInt((cObj.xg + (( pos * (cObj.yg - cObj.xg)) / (cObj.n-1))).toFixed(0));
-			blue = parseInt((cObj.xb + (( pos * (cObj.yb - cObj.xb)) / (cObj.n-1))).toFixed(0));
-			clr = 'rgb('+red+','+green+','+blue+')';
-			return clr;
-		}
-		
-		$scope.stockObjs = [];
-
-		window.jcb = function(d){
-			for(var i = 0; i < d.quote.length; i++){
-				d.quote[i].changeClass = (parseInt(d.quote[i].percentChange) > 0)? "up" : "down";
-				d.quote[i].colorC = getHeatNum(parseInt(d.quote[i].percentChange));
-				$scope.stockObjs.push(d.quote[i]);
-				var elm = document.getElementById("color");
-			}
-		}
-
-
-}
-
-
-var app = angular.module('myApp', []);
-
-app.controller('stockWrap', ['$scope', '$http', function($scope, $http) {
-			
-	$scope.stocks= ["FB","TWTR"];
-
-	$scope.update = function(){ 
-		update($http,$scope);
-	}
-
-	$scope.update();
-
-}]);
-
-app.controller('stockControl', ['$scope', function($scope) {
-	$scope.addStock = {};
-	$scope.sayStock = function() {
-		$scope.stocks.push($scope.addStock.name.toUpperCase());
-    	$scope.update();
-  	}
-}]);
-
-
-*/
+}());
