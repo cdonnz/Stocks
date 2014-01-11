@@ -1,4 +1,4 @@
-(function(){//damned alone again  
+(function(){
     var utils = {};
     utils.cookies = (function(){
         return {
