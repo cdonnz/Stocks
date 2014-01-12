@@ -92,10 +92,22 @@
 
     app.factory('stocks',['$http','items',function($http,items){
         var stockObjs = [], grabDataService = {}, callbackFN = false;
-        
+
         grabDataService.initialize = function(){
             items.loadCookieItems();
-        }    
+            //window.stockLoading = false;
+            grabDataService.setIntrvl();
+        } 
+
+        grabDataService.setIntrvl = function(){
+            setInterval(function(){
+    
+                grabDataService.getAll(items.list());
+                
+                console.log("refresh attempt");
+            },5000);
+            items.loadCookieItems();
+        } 
 
         grabDataService.grabCurrent = function(){
             return stockObjs;
@@ -104,18 +116,21 @@
             callbackFN = fn;
         } 
         grabDataService.getAll = function(stockItems){ 
-            var stocks = stockItems.join(","), stockObjs = [];
-            $http({
-                method: 'JSONP',
-                url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
-            });
-            window.jcb = function(d){
-                if(!Array.isArray(d.quote)){stockObjs.push(d.quote)}
-                else{
-                    for(var i = 0; i < d.quote.length; i++){stockObjs.push(d.quote[i]);}
+            var stocks = stockItems.join(","), stockObjs = [];//alert(window.stockLoading)
+            //if(window.stockLoading == false){
+                //window.stockLoading = true;
+                $http({
+                    method: 'JSONP',
+                    url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
+                });
+                window.jcb = function(d){
+                    if(!Array.isArray(d.quote)){stockObjs.push(d.quote)}
+                    else{
+                        for(var i = 0; i < d.quote.length; i++){stockObjs.push(d.quote[i]);}
+                    }
+                    callbackFN(stockObjs);
                 }
-                callbackFN(stockObjs);
-            } 
+            //} 
         }  
         return grabDataService;  
     }]);
@@ -129,8 +144,10 @@
             for(var i = 0; i < stObjs.length; i++){
                 if(stObjs[i].percentChange =="n.a."){continue;}
                 stObjs[i].stockColor = utils.heatMap.getRGB(stObjs[i].percentChange);
+                console.log(stObjs)
             }
             $scope.stockObjs = stObjs;
+            //window.stockLoading == false
         }
 
         stocks.initialize();
