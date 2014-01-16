@@ -19,10 +19,12 @@ input,select{vertical-align:middle}
 .wrap{ margin-top:50px;}
 
 .stock{ font-size:20px; height:40px; }
-.stock .ticker{float:left; width:100px;padding:10px 0 0 20px;}
-.stock .change{float:left; width:100px;padding:10px 0 0 20px;}
-.stock .current{float:left; width:100px;padding:10px 0 0 20px;}
-.stock .remove{float:left; width:100px; padding:6px 0 0;}
+.stock span.desc{ font-size:10px; text-transform:uppercase;}
+.stock .ticker{float:left; width:200px;padding:10px 0 0 20px;}
+.stock .change{float:left; width:200px;padding:10px 0 0 20px;}
+.stock .current{float:left; width:200px;padding:10px 0 0 20px;}
+.stock .remove{float:left; width:250px; padding:6px 0 0;}
+.stock .remove .add-shares{}
 .new-stock{padding:10px 0 0 20px;}
 
 

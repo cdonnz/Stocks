@@ -8,11 +8,24 @@
 </head>
 <body ng-controller="stockWrap">
   <div ng-repeat="s in stockObjs">
-    <div style="background-color:{{s.stockColor}}" class="stock">
+    <div ng-controller="item" style="background-color:{{s.stockColor}}" class="stock">
       <div class="ticker"> {{s.ticker}} </div>
-      <div class="change"> {{s.percentChange}} </div>
-      <div class="current"> {{s.current}} </div>
-      <div class="remove"><button class="remove-stock" ng-click="trash(s)">[-]</button></div>
+      <div class="change">
+        <span class="desc"> change</span>
+        <span class="data"> {{s.percentChange}} </span>
+      </div>
+      <div class="current">
+        <span class="desc"> current</span>
+        <span class="data"> {{s.current}} </span>
+      </div>
+      <div class="remove">
+        <button class="remove-stock" ng-click="trash(s)">[-]</button>
+        <input ng-model="share" class="add-shares" type="text">
+        <button ng-click="addShares(share,s.current)">[+]</button>
+      </div>
+      <div class="shares">
+          {{ shares }}
+      </div>
     </div>
   </div>
   <div ng-controller="adder" class="new-stock">

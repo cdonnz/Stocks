@@ -31,7 +31,7 @@
             getRGB: function(val){
                 var val = parseInt(val), n = 100, r = 233, g = 250, b = 232, pos = {r2 : 71, g2 : 226, b2 : 64},
                 neg = {r2 : 207, g2 : 11, b2 : 28}, cObj = {}, p = parseInt, pos;
-                val = Math.abs(val) > 40 ? 40 : val;
+                val = Math.abs(val) > 40 ? 40 : val; 
                 cObj = (p(val) > 0)? pos : neg; 
 
                 pos = p((Math.round((Math.abs(val)/7)*100)).toFixed(0));
@@ -105,7 +105,7 @@
                 grabDataService.getAll(items.list());
                 
                 console.log("refresh attempt");
-            },5000);
+            },120000);
             items.loadCookieItems();
         } 
 
@@ -116,21 +116,19 @@
             callbackFN = fn;
         } 
         grabDataService.getAll = function(stockItems){ 
-            var stocks = stockItems.join(","), stockObjs = [];//alert(window.stockLoading)
-            //if(window.stockLoading == false){
-                //window.stockLoading = true;
-                $http({
-                    method: 'JSONP',
-                    url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
-                });
-                window.jcb = function(d){
-                    if(!Array.isArray(d.quote)){stockObjs.push(d.quote)}
-                    else{
-                        for(var i = 0; i < d.quote.length; i++){stockObjs.push(d.quote[i]);}
-                    }
-                    callbackFN(stockObjs);
+            var stocks = stockItems.join(","), stockObjs = [];
+
+            $http({
+                method: 'JSONP',
+                url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
+            });
+            window.jcb = function(d){
+                if(!Array.isArray(d.quote)){stockObjs.push(d.quote)}
+                else{
+                    for(var i = 0; i < d.quote.length; i++){stockObjs.push(d.quote[i]);}
                 }
-            //} 
+                callbackFN(stockObjs);
+            } 
         }  
         return grabDataService;  
     }]);
@@ -140,6 +138,10 @@
             items.remove(stock.ticker);
             stocks.getAll(items.list());
         }
+        $scope.addShares = function(shares){
+            console.log(shares)
+            $scope.foo = shares;
+        }
         var fn = function(stObjs){
             for(var i = 0; i < stObjs.length; i++){
                 if(stObjs[i].percentChange =="n.a."){continue;}
@@ -147,7 +149,7 @@
                 console.log(stObjs)
             }
             $scope.stockObjs = stObjs;
-            //window.stockLoading == false
+
         }
 
         stocks.initialize();
@@ -163,5 +165,13 @@
             $scope.newStock = "";
         }
     }]);
+
+    app.controller('item', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {   
+        $scope.addShares = function(shares,current){
+            console.log(shares * current)
+            $scope.shares = shares * current;
+        }
+    }]);
+
 
 }());
