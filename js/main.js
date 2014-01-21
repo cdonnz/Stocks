@@ -166,10 +166,26 @@
         }
     }]);
 
-    app.controller('item', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {   
+    app.controller('item', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {
+        //[+] Add Shares
+        $scope.addShareText = "[+] Add Shares"; 
         $scope.addShares = function(shares,current){
-            console.log(shares * current)
-            $scope.shares = shares * current;
+           
+            
+            console.log($scope.showValue);
+            if($scope.addShareText == "[+] Add Shares"){
+                $scope.addShareText = "Enter Shares";
+                $scope.showShareValue = true;
+            }else{
+                $scope.showStockValue = true;
+                $scope.shareValue = Math.round((shares * current.replace(/\,/g,''))*100)/100;
+                $scope.showShareValue = false;
+                $scope.addShareText = "[-] Remove Shares";
+            }
+
+            
+
+
         }
     }]);
 

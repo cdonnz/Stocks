@@ -1,10 +1,11 @@
 html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,address,cite,code,del,dfn,em,img,ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary,time,mark,audio,video{border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent;margin:0;padding:0}
-body{line-height:1}
+body{line-height:1;font-family:arial, helvetica}
 article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block}
 nav ul{list-style:none}
 blockquote,q{quotes:none}
 blockquote:before,blockquote:after,q:before,q:after{content:none}
 a{font-size:100%;vertical-align:baseline;background:transparent;margin:0;padding:0}
+a:link,a:visited,a:hover,a:active {color:#000; text-decoration: none}      /* unvisited link */
 ins{background-color:#ff9;color:#000;text-decoration:none}
 mark{background-color:#ff9;color:#000;font-style:italic;font-weight:700}
 del{text-decoration:line-through}
@@ -20,11 +21,19 @@ input,select{vertical-align:middle}
 
 .stock{ font-size:20px; height:40px; }
 .stock span.desc{ font-size:10px; text-transform:uppercase;}
-.stock .ticker{float:left; width:200px;padding:10px 0 0 20px;}
-.stock .change{float:left; width:200px;padding:10px 0 0 20px;}
-.stock .current{float:left; width:200px;padding:10px 0 0 20px;}
-.stock .remove{float:left; width:250px; padding:6px 0 0;}
-.stock .remove .add-shares{}
+.stock .ticker{float:left; width:150px;padding:10px 0 0 20px;}
+.stock .change{float:left; width:150px;padding:10px 0 0 20px;}
+.stock .current{float:left; width:150px;padding:10px 0 0 20px;}
+.stock .stock-value{float:left; width:250px;padding:10px 0 0 20px;}
+.stock .stock-value .ng-hide{display:none;}
+.stock .remove{float:left; width:150px; padding:7px 0 0;}
+.stock .remove a{font-size: 14px}
+.stock .remove .remove-stock{ padding:0 10px 0;}
+.stock .shares{float:left; width:280px;padding:7px 0 0 20px; text-align: right;}
+.stock .shares  a{font-size: 14px;}
+.stock .shares .add-share{ padding:0 10px 0;}
+.stock .shares .ng-hide{ display:none;}
+.stock .control-column{float:right;}
 .new-stock{padding:10px 0 0 20px;}
 
 

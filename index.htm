@@ -18,13 +18,18 @@
         <span class="desc"> current</span>
         <span class="data"> {{s.current}} </span>
       </div>
-      <div class="remove">
-        <button class="remove-stock" ng-click="trash(s)">[-]</button>
-        <input ng-model="share" class="add-shares" type="text">
-        <button ng-click="addShares(share,s.current)">[+]</button>
-      </div>
-      <div class="shares">
-          {{ shares }}
+      <div ng-show="showStockValue" class="stock-value">
+        <span class="desc"> value</span>
+        <span class="data"> {{shareValue}}</span>
+      </div>      
+      <div class="control-column">
+        <div class="shares">
+          <input ng-model="share" ng-show="showShareValue" class="add-shares" type="text">
+          <a href="#" ng-click="addShares(share,s.current)" class="add-share">{{addShareText}}</a>
+        </div>
+        <div class="remove">
+          <a href="#" ng-click="trash(s)" class="remove-stock">[-] Remove Stock</a> 
+        </div>
       </div>
     </div>
   </div>
