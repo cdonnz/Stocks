@@ -142,14 +142,13 @@
             console.log(shares)
             $scope.foo = shares;
         }
-        var fn = function(stObjs){
+        var fn = function(stObjs){console.log("refreshed")
             for(var i = 0; i < stObjs.length; i++){
                 if(stObjs[i].percentChange =="n.a."){continue;}
                 stObjs[i].stockColor = utils.heatMap.getRGB(stObjs[i].percentChange);
-                console.log(stObjs)
             }
+            $scope.stockObjs = "";
             $scope.stockObjs = stObjs;
-
         }
 
         stocks.initialize();
