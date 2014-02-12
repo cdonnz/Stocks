@@ -95,17 +95,14 @@
 
         grabDataService.initialize = function(){
             items.loadCookieItems();
-            //window.stockLoading = false;
             grabDataService.setIntrvl();
         } 
 
         grabDataService.setIntrvl = function(){
             setInterval(function(){
-    
                 grabDataService.getAll(items.list());
-                
-                console.log("refresh attempt");
-            },120000);
+            
+            },10000);
             items.loadCookieItems();
         } 
 
@@ -114,7 +111,20 @@
         }
         grabDataService.setUpdater = function(fn){
             callbackFN = fn;
-        } 
+        }     
+        grabDataService.getOne = function(stock){ console.log("getOne")
+            var stockObjs = [];
+            $http({
+                method: 'JSONP',
+                url: 'http://www.foxbusiness.com/ajax/quote/'+stock+'?callback=jcb'
+            });
+            window.jcb = function(d){
+
+                stockObjs.push(d.quote)
+
+                callbackFN(stockObjs);
+            } 
+        }          
         grabDataService.getAll = function(stockItems){ 
             var stocks = stockItems.join(","), stockObjs = [];
 
@@ -123,11 +133,13 @@
                 url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
             });
             window.jcb = function(d){
-                if(!Array.isArray(d.quote)){stockObjs.push(d.quote)}
-                else{
-                    for(var i = 0; i < d.quote.length; i++){stockObjs.push(d.quote[i]);}
-                }
-                callbackFN(stockObjs);
+
+   
+                    if(!Array.isArray(d.quote)){stockObjs.push(d.quote)}
+                    else{
+                        for(var i = 0; i < d.quote.length; i++){stockObjs.push(d.quote[i]);}
+                    }
+                    callbackFN(stockObjs);
             } 
         }  
         return grabDataService;  
@@ -136,19 +148,32 @@
     app.controller('stockWrap', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {
         $scope.trash = function(stock){
             items.remove(stock.ticker);
-            stocks.getAll(items.list());
+            var temp = [];
+            for(var j = 0; j < $scope.stockObjs.length;j++){
+                if($scope.stockObjs[j].ticker != stock.ticker){
+                    temp.push($scope.stockObjs[j]);
+                }
+            }
+            $scope.stockObjs = temp;
         }
         $scope.addShares = function(shares){
-            console.log(shares)
+    
             $scope.foo = shares;
         }
-        var fn = function(stObjs){console.log("refreshed")
-            for(var i = 0; i < stObjs.length; i++){
-                if(stObjs[i].percentChange =="n.a."){continue;}
-                stObjs[i].stockColor = utils.heatMap.getRGB(stObjs[i].percentChange);
+        var fn = function(stObjs){
+            var list = items.list(), tempArr = [];
+
+            for(var j = 0; j < list.length; j++){
+                for(var i = 0; i < stObjs.length; i++){
+                    if(stObjs[i].ticker == list[j]){
+                        stObjs[i].stockColor = utils.heatMap.getRGB(stObjs[i].percentChange);
+                        tempArr.push(stObjs[i]);
+                    }
+                }
             }
-            $scope.stockObjs = "";
-            $scope.stockObjs = stObjs;
+            if(tempArr.length == list.length){
+                $scope.stockObjs = tempArr;
+            }
         }
 
         stocks.initialize();
@@ -158,9 +183,9 @@
 
     app.controller('adder', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {   
         $scope.addStock = function(){
-            if(typeof $scope.newStock == "undefined"){return; }
+            if(typeof $scope.newStock == "undefined" || !(/^[a-z,A-Z]+$/.test($scope.newStock)) ){ $scope.newStock = ""; return; }
             items.add($scope.newStock);
-            stocks.getAll(items.list(),$scope);
+            stocks.getAll(items.list());
             $scope.newStock = "";
         }
     }]);
@@ -182,11 +207,7 @@
                 $scope.addShareText = "[-] Remove Shares";
             }
 
-            
-
-
         }
     }]);
-
 
 }());
