@@ -24,16 +24,15 @@ input,select{vertical-align:middle}
 .stock .ticker{float:left; width:150px;padding:10px 0 0 20px;}
 .stock .change{float:left; width:150px;padding:10px 0 0 20px;}
 .stock .current{float:left; width:150px;padding:10px 0 0 20px;}
-.stock .stock-value{float:left; width:250px;padding:10px 0 0 20px;}
+.stock .stock-value{float:left; width:200px;padding:10px 0 0 20px;}
 .stock .stock-value .ng-hide{display:none;}
 .stock .remove{float:left; width:150px; padding:7px 0 0;}
 .stock .remove a{font-size: 14px}
 .stock .remove .remove-stock{ padding:0 10px 0;}
-.stock .shares{float:left; width:280px;padding:7px 0 0 20px; text-align: right;}
+.stock .shares{float:left; width:305px;padding:7px 0 0 20px; text-align: right;}
 .stock .shares  a{font-size: 14px;}
 .stock .shares .add-share{ padding:0 10px 0;}
 .stock .shares .ng-hide{ display:none;}
 .stock .control-column{float:right;}
 .new-stock{padding:10px 0 0 20px;}
-
 
