@@ -66,6 +66,13 @@
                 }
             }
             SM.getFeed();
+            SM.setTimer();
+        };
+      
+        SM.setTimer = function(){
+            window.ST = setTimeout(function(){
+                SM.getFeed();
+            },2000)
         };
 
         SM.getFeed = function(){
@@ -76,7 +83,7 @@
             }
 
             var stocks = tempArr.join(",");
-
+console.log("exe")
             $http({
                 method: 'JSONP',
                 url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
@@ -190,6 +197,9 @@
                 }
             }
             $scope.stockObjs = smArr;
+            console.log("refresh");
+            clearTimeout(ST);
+            stockModel.setTimer();
         }
 
         $scope.trash = function(stock){
