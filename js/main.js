@@ -22,12 +22,6 @@
                     if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
                 }
                 return null;
-            },
-            updateItemsCookie: function(itemsArr){
-                var self = this;
-                //console.log("COOKIE UPDATE:",itemsArr)
-                utils.cookies.remove("stocks");
-                self.add("stocks",itemsArr.join("-"),itemsArr);
             }
         }
     }());
@@ -52,185 +46,194 @@
 
     var app = angular.module('myApp', []);
 
-    app.factory('items', function() {
-        var items = [], itemsService = {};
+    app.factory('stockModel',['$http',function($http){
+        var SM = {};
+        SM.stockArr = [];
 
-        itemsService.loadCookieItems = function(){
-            if(utils.cookies.read("stocks")){
-                var s = utils.cookies.read("stocks"),sArr = s.split("-");
-                for(var i = 0; i < sArr.length; i++){
-                    itemsService.add(sArr[i]);
+        SM.initialize = function(){
+            var str = utils.cookies.read("stocks"), tickersArr = str? str.split("-") :  false;
+
+            if(str){
+                for(var t = 0; t < tickersArr.length; t++){
+                    tArr = tickersArr[t].split(":");
+
+                    var obj = {
+                        name   : tArr[0],
+                        shares : tArr[1]
+                    }
+
+                    SM.stockArr.push(obj);
                 }
             }
+            SM.getFeed();
         };
 
-        itemsService.add = function(item) {
-            var item = item.toUpperCase();
-
-            if(items.indexOf(item) == -1){
-                items.push(item);
-            }
-            utils.cookies.updateItemsCookie(items);
-            return items;
-        };
-
-        itemsService.list = function() { return items;};
-
-        itemsService.remove = function(item){
-            console.log("rem",item,items,item.split(":")[0])
+        SM.getFeed = function(){
             var tempArr = [];
-            for(var j = 0; j < items.length; j++){
-                 if( items[j].indexOf(item.split(":")[0]) == -1){
-                    tempArr.push(items[j])
-                 }
+
+            for(var x = 0; x < SM.stockArr.length; x++){
+               tempArr.push(SM.stockArr[x].name);
             }
-            items = tempArr;
-            utils.cookies.updateItemsCookie(items);
-            return items;
-        };
 
-        itemsService.appendShares = function(item,shares,$scope){
-            var self = this,len = items.length;
-            for(var i = 0; i < len; i++){
-                //if stock exists, add shares
-                if(items[i].indexOf(item) > -1){
-                    items[i] = item + ":" + shares;
-
-                }
-            }
-            utils.cookies.updateItemsCookie(items);
-        }
-
-        return itemsService;
-    });
-
-    app.factory('stocks',['$http','items',function($http,items){
-        var stockObjs = [], grabDataService = {}, callbackFN = false;
-
-        grabDataService.initialize = function(){
-            window.isLocked = false;
-            items.loadCookieItems();
-            grabDataService.getAll(items.list());
-            //grabDataService.setIntrvl();
-        }
-
-        grabDataService.setTOut = function(){
-            window.setTimer = setTimeout(function(){
-                grabDataService.getAll(items.list());
-
-            },1000);
-            //items.loadCookieItems();
-        }
-
-        grabDataService.grabCurrent = function(){
-            return stockObjs;
-        }
-        grabDataService.setUpdater = function(fn){
-            callbackFN = fn;
-        }
-        grabDataService.getAll = function(stockItems){
-            var tempArr = [], stObjs = [];
-            for(var x = 0; x < stockItems.length; x++){
-                tempArr.push(stockItems[x].match(/[A-Z]+/)[0])
-            }
             var stocks = tempArr.join(",");
 
             $http({
                 method: 'JSONP',
                 url: 'http://www.foxbusiness.com/ajax/quote/'+stocks+'?callback=jcb'
             });
-            window.jcb = function(d){
-                if(!window.isLocked){
-                    if(!Array.isArray(d.quote)){stObjs.push(d.quote);}
-                    else{
-                        for(var i = 0; i < d.quote.length; i++){stObjs.push(d.quote[i]);}
-                    }
-                    callbackFN(stObjs);
-                    window.clearInterval(window.setTimer)
-                    grabDataService.setTOut();
-                    console.log("refresh")
+
+        };
+
+        SM.addStock = function(newStock){
+            var smArr = SM.stockArr, found = false;
+
+            for(var s = 0; s < smArr.length; s++){
+                if(newStock === smArr.name){
+                    found = true;
                 }
             }
+            if(found == false){
+                var obj = {
+                    name: newStock
+                }
+              SM.stockArr.push(obj);
+            }
+            SM.getFeed();
+            SM.updateCookie();
+        };
+
+        SM.removeStock = function(stock){
+            var smArr = SM.stockArr, tempArr = [], found = false;
+
+            for(var s = 0; s < smArr.length; s++){
+                if(stock !== smArr[s].name){
+                    tempArr.push(smArr[s]);
+                }
+            }
+
+            SM.stockArr = tempArr;
+            SM.updateCookie();
+
+        };
+
+        SM.addShares = function(stock,shares){
+            var smArr = SM.stockArr, tempArr = [];
+
+            for(var s = 0; s < smArr.length; s++){
+                if(stock === smArr[s].name){
+                    SM.stockArr[s].shares = shares;
+                    break;
+                }
+            }
+
+            SM.updateCookie();
+
+        };
+
+        SM.updateCookie = function(){
+            var smArr = SM.stockArr, cArr = [];
+
+            //remove all cookie info
+            utils.cookies.remove("stocks");
+
+            for(var s = 0; s < smArr.length; s++){
+                var shares = smArr[s].shares;
+                if(shares){
+                    cArr.push(smArr[s].name + ":" + smArr[s].shares);
+                }else{
+                    cArr.push(smArr[s].name);
+                }
+
+            }
+
+            utils.cookies.add("stocks",cArr.join("-"));
         }
-        return grabDataService;
+
+        return SM;
+
     }]);
 
-    app.controller('stockWrap', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {
+    app.controller('stockWrap', ['$scope','stockModel','$http', function($scope,stockModel,$http) {
+
+
+        var fixNum = function(num){return num.replace(/\,/g,'');}
+
+        window.jcb = function(d){
+            var dArr = [];
+            var smArr = stockModel.stockArr;
+            //set up data array
+            if(!Array.isArray(d.quote)){dArr.push(d.quote);}
+            else{
+                for(var i = 0; i < d.quote.length; i++){dArr.push(d.quote[i]);}
+            }
+
+            //iterate through local model array
+            for(var s = 0; s < smArr.length; s++){
+                var sym = smArr[s].name
+
+                for(var d = 0; d < dArr.length; d++){
+                    if(sym === dArr[d].ticker){
+                        smArr[s].stockColor = utils.heatMap.getRGB(dArr[d].percentChange);
+                        var current = dArr[d].current.toString();
+                        var currentNoComma = Number(current.replace(/[,]/g,""));
+                        if(smArr[s].shares){
+                          smArr[s].value = Math.round((currentNoComma * smArr[s].shares)*100)/100;
+                          console.log(smArr[s].shares)
+                          if(smArr[s].shares == 0){smArr[s].value = "";}
+                        }
+                        smArr[s].current = current;
+                        smArr[s].change = dArr[d].percentChange;
+                    }
+                }
+            }
+            $scope.stockObjs = smArr;
+        }
+
         $scope.trash = function(stock){
-            items.remove(stock.ticker);
-            var temp = [];
-            var len = $scope.stockObjs.length;
-            for(var u = 0; u < len;u++){
-                if($scope.stockObjs[u].ticker != stock.ticker){
-                    temp.push($scope.stockObjs[u]);
-                }
-            }
-            $scope.stockObjs = temp;
-        }
-        $scope.addShares = function(shares){
 
-            $scope.foo = shares;
-        }
-        var fn = function(stObjs){
-            var list = items.list(), tempArr = [], len = list.length;
-            //console.log(list)
-            for(var j = 0; j < list.length; j++){
-                for(var i = 0; i < stObjs.length; i++){
-                    var listSym = list[j].split(":")[0];
-                    if(listSym === stObjs[i].ticker){
-                        stObjs[i].stockColor = utils.heatMap.getRGB(stObjs[i].percentChange);
-                        var shareNum = list[j].split(":")[1];
-                        if(Boolean(shareNum)){
-                            var shareCurrent = Number(stObjs[i].current.replace(/[,]/g,""));
+            stockModel.removeStock(stock.name);
+            $scope.stockObjs = stockModel.stockArr;
 
-                            if(shareCurrent ){
-                                shareCurrent = shareCurrent.toString();
-                                stObjs[i].shareValue = Math.round((shareNum * shareCurrent.replace(/\,/g,''))*100)/100;
-                            }
-                        }else{stObjs[i].shareValue = "";}
-
-                        tempArr.push(stObjs[i]);
-                    }
-                }
-            }
-            console.log(len, tempArr.length)
-            if(tempArr.length == len){
-                $scope.stockObjs = tempArr;
-            }
         }
 
-        stocks.initialize();
-        stocks.setUpdater(fn);
-        stocks.getAll(items.list());
+        stockModel.initialize();
     }]);
 
-    app.controller('adder', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {
+
+    app.controller('adder', ['$scope','stockModel','$http', function($scope,stockModel,$http) {
         $scope.addStock = function(){
             if(typeof $scope.newStock == "undefined" || !(/^[a-z,A-Z]+$/.test($scope.newStock)) ){ $scope.newStock = ""; return; }
-            items.add($scope.newStock);
-           // stocks.getAll(items.list());
+
+            stockModel.addStock($scope.newStock.toUpperCase())
             $scope.newStock = "";
         }
     }]);
 
-    app.controller('item', ['$scope','items','stocks','$http', function($scope,items,stocks,$http) {
+    app.controller('item', ['$scope','stockModel','$http', function($scope,stockModel,$http) {
         //[+] Add Shares
         $scope.addShareText = "[+] Add Shares";
+
         $scope.addShares = function(shares,current,symbol,s){
+
             window.isLocked = true;
+
             if($scope.addShareText == "[+] Add Shares"){
                 $scope.addShareText = "Enter Shares";
                 $scope.showShareValue = true;
-            }else{
-                $scope.showStockValue = true;
+            }else if($scope.addShareText == "[-] Remove Shares"){
+                stockModel.addShares(symbol,0);
+                stockModel.getFeed();
+                console.log("remove")
+            }
+            else{
+                if(/[0-9]+/.test(shares)){
+                    $scope.showShareValue = false;
+                    stockModel.addShares(symbol,shares);
+                    stockModel.getFeed();
 
-                items.appendShares(symbol,shares,$scope);
+                    $scope.addShareText = "[-] Remove Shares";
 
-
-                //$scope.showShareValue = true;
-                //var elm = $scope.find('.b');
-                //console.log(elm);
-                $scope.addShareText = "[-] Remove Shares";
+                }
                 window.isLocked = false;
             }
 

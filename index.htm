@@ -1,19 +1,19 @@
 
-<!doctype html> 
+<!doctype html>
 <html ng-app="myApp" lang="en">
 <head>
   <title>EXP</title>
   <script src="js/angular.min.js"></script>
   <script src="js/main.js"></script>
-  <link rel="stylesheet" href="css/styles.css"> 
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body ng-controller="stockWrap">
   <div ng-repeat="s in stockObjs">
     <div ng-controller="item" style="background-color:{{s.stockColor}}" class="stock">
-      <div class="ticker"> {{s.ticker}} </div>
+      <div class="ticker"> {{s.name}} </div>
       <div class="change">
         <span class="desc"> change</span>
-        <span class="data"> {{s.percentChange}} </span>
+        <span class="data"> {{s.change}} </span>
       </div>
       <div class="current">
         <span class="desc"> current</span>
@@ -21,16 +21,15 @@
       </div>
       <div class="stock-value">
         <span class="desc"> value</span>
-        <span class="data a"> {{s.shareValue}}  </span>
-        <span class="data b"> {{shareValue}}  </span>
-      </div>      
+        <span class="data a"> {{s.value}}  </span>
+      </div>
       <div class="control-column">
         <div class="shares">
           <input ng-model="share" ng-show="showShareValue" class="add-shares" type="text">
-          <a href="#" ng-click="addShares(share,s.current,s.ticker)" class="add-share">{{addShareText}}</a>
+          <a href="#" ng-click="addShares(share,s.current,s.name)" class="add-share">{{addShareText}}</a>
         </div>
         <div class="remove">
-          <a href="#" ng-click="trash(s)" class="remove-stock">[-] Remove Stock</a> 
+          <a href="#" ng-click="trash(s)" class="remove-stock">[-] Remove Stock</a>
         </div>
       </div>
     </div>
