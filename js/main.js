@@ -88,7 +88,7 @@
             var smArr = SM.stockArr, found = false;
 
             for(var s = 0; s < smArr.length; s++){
-                if(newStock === smArr.name){
+                if(newStock === smArr[s].name){
                     found = true;
                 }
             }
@@ -122,6 +122,9 @@
             for(var s = 0; s < smArr.length; s++){
                 if(stock === smArr[s].name){
                     SM.stockArr[s].shares = shares;
+                    if(shares === 0){
+                      SM.stockArr[s].value = "";  
+                    }
                     break;
                 }
             }
@@ -177,10 +180,10 @@
                         var current = dArr[d].current.toString();
                         var currentNoComma = Number(current.replace(/[,]/g,""));
                         if(smArr[s].shares){
-                          smArr[s].value = Math.round((currentNoComma * smArr[s].shares)*100)/100;
-                          console.log(smArr[s].shares)
-                          if(smArr[s].shares == 0){smArr[s].value = "";}
-                        }
+                            smArr[s].valueLabel = "value";
+                            smArr[s].value = Math.round((currentNoComma * smArr[s].shares)*100)/100;
+                            if(smArr[s].shares == 0){smArr[s].value = "";}
+                        }else{ smArr[s].valueLabel = "";}
                         smArr[s].current = current;
                         smArr[s].change = dArr[d].percentChange;
                     }
@@ -223,16 +226,15 @@
             }else if($scope.addShareText == "[-] Remove Shares"){
                 stockModel.addShares(symbol,0);
                 stockModel.getFeed();
-                console.log("remove")
+                $scope.share = 0;
+                $scope.addShareText = "[+] Add Shares"
             }
             else{
                 if(/[0-9]+/.test(shares)){
                     $scope.showShareValue = false;
                     stockModel.addShares(symbol,shares);
                     stockModel.getFeed();
-
                     $scope.addShareText = "[-] Remove Shares";
-
                 }
                 window.isLocked = false;
             }
